@@ -22,7 +22,7 @@ const studentSchema = new Schema({
     courses : [ 
         {
             type : Schema.Types.ObjectId,
-            ref : "course"
+            ref : "Course"
         }
     ]
 
