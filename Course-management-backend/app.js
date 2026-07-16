@@ -89,18 +89,26 @@ app.delete("/courses/:id" , async(req,res)=>{
 app.post("/students/:id1/courses/:id2",async(req,res)=>{
     const { id1 } = req.params;
     const student = await Student.findById(id1);
+    console.log(student);
 
     const { id2 } = req.params;
     const course = await Course.findById(id2);
 
-    if(!student.courses.includes(course._id)){
-       student.courses.push(course._id);
+    if(!student){
+        res.send("Student not Found");
+        return;
     }
-
+    if(!course){
+        res.send("Course not Found");
+        return;
+    }
+    if(!student.courses.includes(course._id)){
+        
+       student.courses.push(course._id);
+    }   
     if(!course.students.includes(student._id)){
        course.students.push(student._id);
     } 
-     
     await student.save();
     await course.save();
 
