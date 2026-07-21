@@ -18,6 +18,12 @@ app.listen(port,()=>{
 const Student = require("./Schema/studentSchema");
 const Course = require("./Schema/courseSchema");
 
+const studentSchema = require("./validators/studentValidator");
+const studentUpdateSchema = require("./validators/studentUpdateSchema");
+
+const courseSchema = require("./validators/courseValidator");
+const courseUpdateSchema = require("./validators/courseUpdateSchema");
+
 // Student routes
 
 app.get("/students",async (req,res)=>{
@@ -51,6 +57,10 @@ app.get("/students/:id",async(req,res)=>{
 
 app.patch("/students/:id",async(req,res)=>{
     try{
+        const result = studentUpdateSchema.validate(req.body);
+        if(result.error){
+            return res.status(400).send(result.error.message);
+        }
         const { id } = req.params;
         const newData = req.body;
         const student = await Student.findByIdAndUpdate(id,newData,{new : true});
@@ -68,6 +78,10 @@ app.patch("/students/:id",async(req,res)=>{
 
 app.post("/students",async (req,res)=>{
     try{
+        const result = studentSchema.validate(req.body);
+        if(result.error){
+            return res.status(400).send(result.error.message);
+        }
         const student =  new Student(req.body);
         await student.save();
         res.status(201).send(student);
@@ -98,6 +112,10 @@ app.delete("/students/:id",async(req,res)=>{
 
 app.post("/courses", async(req,res)=>{
     try{
+        const result = courseSchema.validate(req.body);
+        if(result.error){
+            return res.status(404).send(result.error.message);
+        }
         const course = new Course(req.body);
         await course.save();
         res.status(201).send(course); 
@@ -137,6 +155,10 @@ app.get("/courses/:id",async(req,res)=>{
 
 app.patch("/courses/:id",async(req,res)=>{
     try{
+    const result = courseUpdateSchema.validate(req.body);
+    if(result.error){
+        return res.status(400).send(result.error.message);
+    }
     const { id } = req.params;
     const course = await Course.findByIdAndUpdate(id,req.body,{returnDocument : "after"});
     if(!course){
