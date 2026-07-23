@@ -14,95 +14,19 @@ const port = 9000;
 app.listen(port,()=>{
     console.log("Listening to the port.");
 });
+const session = require("express-session");
+app.use(session({
+    secret : "mysecretkey",
+    resave : false,
+    saveUninitialized : false
+}));
 
-const Student = require("./Models/studentSchema");
-const Course = require("./Models/courseSchema");
-
-const studentSchema = require("./validators/studentValidator");
-const studentUpdateSchema = require("./validators/studentUpdateSchema");
-
-const courseSchema = require("./validators/courseValidator");
-const courseUpdateSchema = require("./validators/courseUpdateSchema");
-
-const ExpressError = require("./utils/ExpressError");
 const studentRoutes = require("./routes/students");
+const courseRoutes = require("./routes/courses");
 
 app.use("/students",studentRoutes);
+app.use("/courses",courseRoutes);
 
-
-// Courses routes
-
-app.post("/courses", async(req,res)=>{
-    const result = courseSchema.validate(req.body);
-    if(result.error){
-        return res.status(400).send(result.error.message);
-    }
-    const course = new Course(req.body);
-    await course.save();
-    res.status(201).send(course);  
-});
-
-app.get("/courses" , async(req,res)=>{
-    const course = await Course.find({});
-    res.status(200).send(course);
-});
-
-app.get("/courses/:id",async(req,res)=>{
-    const { id } = req.params;
-    const course = await Course.findById(id).populate("students");
-    if(!course){
-        throw new ExpressError(404,"Course Not Found");
-    }
-    res.status(200).send(course);
-});
-
-app.patch("/courses/:id",async(req,res)=>{
-    const result = courseUpdateSchema.validate(req.body);
-    if(result.error){
-        throw new ExpressError(400,result.error.message);
-    }
-    const { id } = req.params;
-    const course = await Course.findByIdAndUpdate(id,req.body,{returnDocument : "after"});
-    if(!course){
-        throw new ExpressError(404,"Course Not Found");
-    }
-    res.status(200).send(course);
-});
-
-app.delete("/courses/:id" , async(req,res)=>{
-    const { id } = req.params;
-    const course = await Course.findByIdAndDelete(id);
-    if(!course){
-        throw new ExpressError(404,"Course Not Found");
-    }
-    res.status(200).send({message : "deleted" ,course});
-});
-
-// Enroll student in course
-
-app.post("/students/:id1/courses/:id2",async(req,res)=>{
-    const { id1 , id2 } = req.params;
-    const student = await Student.findById(id1);
-    const course = await Course.findById(id2);
-
-    if(!student){
-        throw new ExpressError(404,"Student Not Found");
-    }
-    if(!course){
-        throw new ExpressError(404,"Student Not Found");
-    }
-    if(!student.courses.includes(course._id)){
-        student.courses.push(course._id);
-    }   
-    if(!course.students.includes(student._id)){
-       course.students.push(student._id);
-    } 
-    await student.save();
-    await course.save();
-
-    res.status(200).send({ student,course });
-    
-});
 
 // Error Handling
 
