@@ -14,6 +14,7 @@ const port = 9000;
 app.listen(port,()=>{
     console.log("Listening to the port.");
 });
+
 const session = require("express-session");
 app.use(session({
     secret : "mysecretkey",
@@ -23,10 +24,11 @@ app.use(session({
 
 const studentRoutes = require("./routes/students");
 const courseRoutes = require("./routes/courses");
+const userRoutes = require("./routes/user");
 
 app.use("/students",studentRoutes);
 app.use("/courses",courseRoutes);
-
+app.use("/users",userRoutes);
 
 // Error Handling
 

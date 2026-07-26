@@ -4,10 +4,6 @@ const courseUpdateSchema = require("../validators/courseUpdateSchema");
 const ExpressError = require("../utils/ExpressError");
 
 module.exports.postCourse = async(req,res)=>{
-    const result = courseSchema.validate(req.body);
-    if(result.error){
-        return res.status(400).send(result.error.message);
-    }
     const course = new Course(req.body);
     await course.save();
     res.status(201).send(course);  
