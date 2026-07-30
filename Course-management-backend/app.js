@@ -22,6 +22,10 @@ app.use(session({
     saveUninitialized : false
 }));
 
+const passport = require("passport");
+const localStrategy = require("passport-local");
+const User = require("./Models/userSchema");
+
 const studentRoutes = require("./routes/students");
 const courseRoutes = require("./routes/courses");
 const userRoutes = require("./routes/user");
