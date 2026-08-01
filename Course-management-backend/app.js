@@ -27,10 +27,10 @@ app.use(session({
 }));
 
 const passport = require("passport");
-const localStrategy = require("passport-local");
+const LocalStrategy = require("passport-local");
 app.use(passport.initialize());
 app.use(passport.session());
-passport.use(new localStrategy(async(username,password,done)=>{
+passport.use(new LocalStrategy(async(username,password,done)=>{
     const user = await User.findOne({username});
     if(!user){
         return done(null,false);
@@ -41,8 +41,13 @@ passport.use(new localStrategy(async(username,password,done)=>{
     }
     return done(null,user);
 }));
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+passport.serializeUser((user,done)=>{
+    done(null,user._id);
+});
+passport.deserializeUser(async(id,done)=>{
+    const user = await User.findById(id);
+    done(null,user);
+});
 
 
 const studentRoutes = require("./routes/students");
