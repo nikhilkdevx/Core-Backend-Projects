@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 const app = express();
 const bcrypt = require("bcrypt");
@@ -26,28 +28,28 @@ app.use(session({
     saveUninitialized : false
 }));
 
-const passport = require("passport");
-const LocalStrategy = require("passport-local");
-app.use(passport.initialize());
-app.use(passport.session());
-passport.use(new LocalStrategy(async(username,password,done)=>{
-    const user = await User.findOne({username});
-    if(!user){
-        return done(null,false);
-    }
-    const isMatch = await bcrypt.compare(password,user.password);
-    if(!isMatch){
-        return done(null,false);
-    }
-    return done(null,user);
-}));
-passport.serializeUser((user,done)=>{
-    done(null,user._id);
-});
-passport.deserializeUser(async(id,done)=>{
-    const user = await User.findById(id);
-    done(null,user);
-});
+// const passport = require("passport");
+// const LocalStrategy = require("passport-local");
+// app.use(passport.initialize());
+// app.use(passport.session());
+// passport.use(new LocalStrategy(async(username,password,done)=>{
+//     const user = await User.findOne({username});
+//     if(!user){
+//         return done(null,false);
+//     }
+//     const isMatch = await bcrypt.compare(password,user.password);
+//     if(!isMatch){
+//         return done(null,false);
+//     }
+//     return done(null,user);
+// }));
+// passport.serializeUser((user,done)=>{
+//     done(null,user._id);
+// });
+// passport.deserializeUser(async(id,done)=>{
+//     const user = await User.findById(id);
+//     done(null,user);
+// });
 
 
 const studentRoutes = require("./routes/students");

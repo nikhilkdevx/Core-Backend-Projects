@@ -3,10 +3,11 @@ const router = express.Router();
 const courseController = require("../controllers/courseController");
 const isLoggedIn = require("../middleware/auth");
 const validateCourse = require("../middleware/validateCourse");
+const verifyJwT = require("../middleware/verifyJWT");
 
 router.post("/",isLoggedIn,validateCourse,courseController.postCourse);
 
-router.get("/" ,courseController.index);
+router.get("/" ,verifyJwT,courseController.index);
 
 router.get("/:id",isLoggedIn,courseController.getOneCourse);
 
