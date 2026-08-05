@@ -1,14 +1,19 @@
 const express = require("express");
 const app = express();
-let Insta = require("./data");
 
-app.get("/insta/:id",async (req,res)=>{
-    let id = req.params.id;
-    let inst = insta.findbyId(id);
-    res.render("dummyejsfile",{insta});
+const port = 6000;
+app.listen(port,()=>{
+    console.log("app is listening");
 });
 
-listing.find($and[
-    {price : {$gte : 1000}},
-    {price : {$lte : 5000}}
-]);
+const mongoose = require("mongoose");
+async function main() {
+    await mongoose.connect("mongodb://127.0.0.1:27017/bitsBackend");
+}
+main()
+.then(()=>
+    console.log("connected to MongoDB"))
+.catch(err=>console.log(err));
+
+
+
