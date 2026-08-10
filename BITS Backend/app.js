@@ -82,6 +82,35 @@ app.post("/auth/login",async(req,res)=>{
     res.status(200).json({message : "Login Success", token, user : safeUser});
 });
 
+// user Routes
+
+app.get("/users",async (req,res)=>{
+    const users = await User.find();
+    const safeUsers = users.map((user)=> ({
+        id : user._id,
+        name : user.name,
+        email : user.email,
+        role : user.role,
+    }));
+    res.status(200).json({ users : safeUsers});
+});
+
+app.get("/users/:id",async(req,res)=>{
+    const { id } = req.params;
+    const user = await User.findById(id);
+    if(!user){
+        throw new ExpressError("404","User not found");
+    }
+    const safeUser = {
+        id : user._id,
+        name : user.name,
+        email : user.email,
+        role : user.role,
+    }
+    res.status(200).json({user: safeUser});
+});
+
+
 app.use((err,req,res,next)=>{
     const {statusCode = 500 , message = "Something Went Wrong"} = err;
     res.status(statusCode).json({message});
