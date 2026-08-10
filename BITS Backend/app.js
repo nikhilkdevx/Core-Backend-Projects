@@ -84,7 +84,7 @@ app.post("/auth/login",async(req,res)=>{
 
 // user Routes
 
-app.get("/users",async (req,res)=>{
+app.get("/user",async (req,res)=>{
     const users = await User.find();
     const safeUsers = users.map((user)=> ({
         id : user._id,
@@ -95,7 +95,7 @@ app.get("/users",async (req,res)=>{
     res.status(200).json({ users : safeUsers});
 });
 
-app.get("/users/:id",async(req,res)=>{
+app.get("/user/:id",async(req,res)=>{
     const { id } = req.params;
     const user = await User.findById(id);
     if(!user){
@@ -110,8 +110,40 @@ app.get("/users/:id",async(req,res)=>{
     res.status(200).json({user: safeUser});
 });
 
+app.patch("/user/:id",async(req,res)=>{
+    const { id } = req.params;
+    const newuser = req.body;
+    const updateduser = await User.findByIdAndUpdate(id,newuser,{new : true});
+    if(!updateduser){
+        throw new ExpressError(404,"User not Found");
+    }
+    const safeUser = {
+        id : updateduser._id,
+        name : updateduser.name,
+        email :updateduser.email,
+        role : updateduser.role,
+    }
+    res.status(200).json({user : safeUser});
+});
+
+app.delete("/user/:id",async(req,res)=>{
+    const { id } = req.params;
+    const user = await User.findByIdAndDelete(id);
+    if(!user){
+        throw new ExpressError(404,"User not Exist");
+    }
+    const safeUser = {
+        id : user._id,
+        name : user.name,
+        email : user.email,
+        role : user.role,
+    }
+    res.status(200).json({deletedUser : safeUser }); 
+});
+
 
 app.use((err,req,res,next)=>{
     const {statusCode = 500 , message = "Something Went Wrong"} = err;
+    console.log("Global Error Handler");
     res.status(statusCode).json({message});
 });
