@@ -21,8 +21,10 @@ main()
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const User = require("./Models/user");
+const Course = require("./Models/courses");
 const userValidation = require("./validators/userValidation");
 const loginValidation = require("./validators/loginValidation");
+const courseValidation = require("./validators/courseValidation");
 const ExpressError = require("./utils/ExpressError");
 
 // Auth 
@@ -113,7 +115,7 @@ app.get("/user/:id",async(req,res)=>{
 app.patch("/user/:id",async(req,res)=>{
     const { id } = req.params;
     const newuser = req.body;
-    const updateduser = await User.findByIdAndUpdate(id,newuser,{new : true});
+    const updateduser = await User.findByIdAndUpdate(id,newuser,{returnDocument : 'after'});
     if(!updateduser){
         throw new ExpressError(404,"User not Found");
     }
@@ -141,7 +143,133 @@ app.delete("/user/:id",async(req,res)=>{
     res.status(200).json({deletedUser : safeUser }); 
 });
 
+// Courses Route 
+app.get("/course",async(req,res)=>{
+    const courses = await Course.find();
+    res.status(200).json({AllCourses : courses});
+});
 
+app.get("/course/:id",async(req,res)=>{
+    const { id } = req.params;
+    const course = await Course.findById(id);
+    if(!course){
+        throw new ExpressError(400,"Course Not Found");
+    }
+    res.status(200).json({course : course});
+});
+
+app.post("/course",async(req,res)=>{
+    const result = courseValidation.validate(req.body);
+    if(result.error){
+        throw new ExpressError(400,result.error.message);
+    }
+    const { name,code,credits} = req.body;
+    const course = new Course({
+        name,
+        code,
+        credits,
+    });
+    await course.save();
+    res.status(201).json({message: "New Course Created ",course});
+});
+
+app.patch("/course/:id",async(req,res)=>{
+    const newData = req.body;
+    const {id} = req.params;
+    const updatedCourse = await Course.findByIdAndUpdate(id,newData,{ returnDocument: 'after'});
+    if(!updatedCourse){
+        throw new ExpressError(400,"Course Not Found");
+    }
+    res.status(200).json({message : " Course Updated Successfully",course : updatedCourse});
+});
+
+app.delete("/course/:id",async(req,res)=>{
+    const {id} = req.params;
+    const course = await Course.findByIdAndDelete(id);
+    if(!course){
+        throw new ExpressError(400,"Course Doesn't Exist");
+    }
+    res.status(200).json({DeletedCourse : course});
+});
+
+// Enrollemnt and Denrollemnt Routes 
+
+app.patch("/user/:id1/course/:id2",async(req,res)=>{
+    let { id1,id2 } = req.params;
+    const student = await User.findById(id1);
+    if(!student){
+        throw new ExpressError(400,"Student Doesn't Exist");
+    }
+    const course = await Course.findById(id2);
+    if(!course){
+        throw new ExpressError(400,"Course Doesn't Exist");
+    }
+    if(!student.courses.includes(course._id)){
+        student.courses.push(course._id);
+    }
+    if(!course.students.includes(student._id)){
+        course.students.push(student._id);
+    }
+    await student.save();
+    await course.save();
+    const safeStudent = {
+        id : student._id,
+        name : student.name,
+        email : student.email,
+        role : student.role,
+        courses : student.courses,
+    };
+    res.status(201).json({message : "Successfully Added",safeStudent});
+});
+
+app.delete("/user/:id1/course/:id2",async(req,res)=>{
+    let { id1,id2 } = req.params;
+    const student = await User.findById(id1);
+    if(!student){
+        throw new ExpressError(400,"Student Doesn't Exist");
+    }
+    const course = await Course.findById(id2);
+    if(!course){
+        throw new ExpressError(400,"Course Doesn't Exist");
+    }
+        student.courses.pull(course._id);
+        course.students.pull(student._id);
+    await student.save();
+    await course.save();
+    const safeStudent = {
+        id : student._id,
+        name : student.name,
+        email : student.email,
+        role : student.role,
+        courses : student.courses,
+    };
+    res.status(201).json({message : "Successfully Removed from Course",safeStudent});
+});
+
+// Enroll Profs in Course
+
+app.patch("/course/:id1/professor/:id2",async(req,res)=>{
+    let { id1,id2 } = req.params;
+    const course = await Course.findById(id1);
+    if(!course){
+        throw new ExpressError(400,"Course Doesn't Exist");
+    }
+    const professor = await User.findById(id2);
+    if(!professor){
+        throw new ExpressError(400,"Professor Doesn't Exist");
+    }
+    if(professor.role !== "professor"){
+        throw new ExpressError(400,"User is not a professor");
+    }
+    if(!course.professor.includes(professor._id)){
+        course.professor.push(professor._id);
+    }
+    await course.save();
+    res.status(201).json({message : "Successfully Added",course});
+});
+
+
+// Global Error Handler
 app.use((err,req,res,next)=>{
     const {statusCode = 500 , message = "Something Went Wrong"} = err;
     console.log("Global Error Handler");

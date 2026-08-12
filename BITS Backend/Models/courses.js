@@ -7,15 +7,17 @@ const courseSchema = new mongoose.Schema({
 
     },
     code : {
-        type : Number,
+        type : String,
         required : true,
 
     },
     credits : String,
-    professor : {
-        type : mongoose.SchemaType.ObjectId,
-        ref : "User",
-    },
+    professor : [
+        {
+            type : mongoose.SchemaTypes.ObjectId,
+            ref : "User",
+        }
+    ],
     students : [
         {
             type : mongoose.SchemaTypes.ObjectId,
