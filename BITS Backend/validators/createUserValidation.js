@@ -1,6 +1,6 @@
 const joi = require("joi");
 
-const userValidation = joi.object({
+const createUserValidation = joi.object({
     name : joi.string().min(4).required(),
     email : joi.string().email().required(),
     password : joi.string().min(6).required(),
@@ -9,4 +9,4 @@ const userValidation = joi.object({
     .required()
 });
 
-module.exports = userValidation;
+module.exports = createUserValidation;
