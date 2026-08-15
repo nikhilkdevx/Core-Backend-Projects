@@ -38,7 +38,7 @@ app.patch("/user/:id1/course/:id2",async(req,res)=>{
     const student = await User.findById(id1);
     if(!student){
         throw new ExpressError(400,"Student Doesn't Exist");
-    }
+    } 
     const course = await Course.findById(id2);
     if(!course){
         throw new ExpressError(400,"Course Doesn't Exist");

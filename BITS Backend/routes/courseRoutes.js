@@ -1,15 +1,18 @@
 const express = require("express");
 const router = express.Router();
 const courseController = require("../controllers/courseController");
+const verifyjwt = require("../middlewares/verifyJWT");
+const allowRoles = require("../middlewares/allowRoles");
+const isOwnerOrAdmin = require("../middlewares/isOwnerOrAdmin");
 
 router.route("/")
 .get(courseController.getAllCourse)
-.post(courseController.createCourse);
+.post(verifyjwt,allowRoles("admin","professor"),courseController.createCourse);
 
 router.route("/:id")
-.get(courseController.getOneCourse)
-.patch(courseController.updateCourse)
-.delete(courseController.DeletedCourse);
+.get(verifyjwt,courseController.getOneCourse)
+.patch(verifyjwt,allowRoles("professor","admin"),courseController.updateCourse)
+.delete(verifyjwt,allowRoles("admin"),courseController.DeletedCourse);
 
 
 
