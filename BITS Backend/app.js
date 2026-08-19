@@ -4,16 +4,17 @@ const app = express();
 const dotenv = require("dotenv");
 dotenv.config();
 
-const port = 6000;
-app.listen(port,()=>{
-    console.log("app is listening");
+const port = process.env.PORT || 6000;
+
+app.listen(port,"0.0.0.0",()=>{
+    console.log(`app is listening on port ${port}`);
 });
 
 app.use(express.json());
 
 const mongoose = require("mongoose");
 async function main() {
-    await mongoose.connect("mongodb://127.0.0.1:27017/bitsBackend");
+    await mongoose.connect(process.env.MONGO_URL);
 }
 main()
 .then(()=>
