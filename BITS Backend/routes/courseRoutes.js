@@ -14,5 +14,6 @@ router.route("/:id")
 .patch(verifyjwt,allowRoles("professor","admin"),courseController.updateCourse)
 .delete(verifyjwt,allowRoles("admin"),courseController.DeletedCourse);
 
+router.patch("/:id1/professor/:id2",verifyjwt,allowRoles("admin"),courseController.enrollProfessorInCourse);
 
-
+module.exports = router;

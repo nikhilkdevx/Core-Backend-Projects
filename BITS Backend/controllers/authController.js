@@ -13,7 +13,7 @@ module.exports.register = async (req,res)=>{
     const {name,email,password,role} = req.body;
     const existingUser = await User.findOne({ email });
     if(existingUser){
-        throw new ExpressError(409,"Email already Registered");
+        throw new ExpressError(400,"Email already Registered");
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({
